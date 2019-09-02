@@ -1,0 +1,45 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: gateway
+  template:
+    metadata:
+      labels:
+        run: gateway
+    spec:
+      containers:
+      - name: gateway-containers
+        image: registry-vpc.cn-beijing.aliyuncs.com/gateway-demo/suke-gateway-image:1.0-SNAPSHOT
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: host-time
+          mountPath: /etc/localtime
+        ports:
+        - containerPort: 8769
+        env:
+        - name:  spring.profiles.active
+          value:  test
+      volumes:
+      - name: host-time
+        hostPath:
+          path: /etc/localtime
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  labels:
+    run: gateway
+spec:
+  ports:
+  - port: 8769
+    targetPort: 8769
+  selector:
+    run: gateway
+

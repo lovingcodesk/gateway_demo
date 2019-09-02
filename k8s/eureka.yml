@@ -1,0 +1,45 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: eureka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: eureka
+  template:
+    metadata:
+      labels:
+        run: eureka
+    spec:
+      containers:
+      - name: eureka-containers
+        image: registry-vpc.cn-beijing.aliyuncs.com/gateway-demo/suke-eureka-image:1.0-SNAPSHOT
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: host-time
+          mountPath: /etc/localtime
+        ports:
+        - containerPort: 8761
+        env:
+        - name:  spring.profiles.active
+          value:  test
+      volumes:
+      - name: host-time
+        hostPath:
+          path: /etc/localtime
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka
+  labels:
+    run: eureka
+spec:
+  ports:
+  - port: 8761
+    targetPort: 8761
+  selector:
+    run: eureka
+
